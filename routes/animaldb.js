@@ -2,7 +2,7 @@ const db = require('../database/db'); // Mengimpor koneksi database
 
 // Mendapatkan semua data hewan
 const getAllAnimals = (callback) => {
-    db.query('SELECT * FROM animals', (err, results) => {
+    db.query('SELECT * FROM hewan', (err, results) => {
         if (err) {
             return callback(err);
         }
@@ -12,7 +12,7 @@ const getAllAnimals = (callback) => {
 
 // Mendapatkan data hewan berdasarkan ID
 const getAnimalById = (id, callback) => {
-    db.query('SELECT * FROM animals WHERE id = ?', [id], (err, results) => {
+    db.query('SELECT * FROM hewan WHERE id = ?', [id], (err, results) => {
         if (err) {
             return callback(err);
         }
@@ -25,7 +25,7 @@ const getAnimalById = (id, callback) => {
 
 // Menambahkan hewan baru
 const addAnimal = (name, species, birthDate, cageId, callback) => {
-    db.query('INSERT INTO animals (name, species, birthDate, cageId) VALUES (?, ?, ?, ?)', [name, species, birthDate, cageId], (err, results) => {
+    db.query('INSERT INTO hewan (name, species, birthDate, cageId) VALUES (?, ?, ?, ?)', [name, species, birthDate, cageId], (err, results) => {
         if (err) {
             return callback(err);
         }
