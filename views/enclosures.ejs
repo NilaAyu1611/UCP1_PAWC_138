@@ -1,0 +1,22 @@
+<% layout('layout/main-layout') %>
+
+<div class="container">
+    <h1>Enclosures</h1>
+    <form action="/enclosures" method="POST" class="mb-4">
+        <input type="text" name="name" placeholder="Enclosure Name" required>
+        <input type="text" name="animalType" placeholder="Animal Type" required>
+        <input type="number" name="capacity" placeholder="Capacity" required>
+        <button type="submit" class="btn btn-primary">Add Enclosure</button>
+    </form>
+
+    <ul>
+        <% enclosures.forEach(enclosure => { %>
+            <li>
+                <%= enclosure.name %> - <%= enclosure.animalType %> (Capacity: <%= enclosure.capacity %>)
+                <form action="/enclosures/delete/<%= enclosure.id %>" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+            </li>
+        <% }); %>
+    </ul>
+</div>

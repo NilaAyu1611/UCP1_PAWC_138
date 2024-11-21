@@ -1,0 +1,134 @@
+<!-- /views/animal-enclosures.ejs -->
+<% layout('layout/main-layout') %>
+
+<div class="container mt-5">
+    <h1 class="text-center">Animal Enclosures</h1>
+
+    <!-- Form to Add New Enclosure -->
+    <form id="addEnclosureForm" class="my-4">
+        <div class="input-group">
+            <input type="text" id="newEnclosureName" class="form-control" placeholder="Enter enclosure name..." required>
+            <input type="number" id="newEnclosureCapacity" class="form-control" placeholder="Enter capacity..." required>
+            <input type="text" id="newAnimalType" class="form-control" placeholder="Enter animal type..." required>
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-primary">Add Enclosure</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- List of Enclosures -->
+    <ul id="enclosureList" class="list-group">
+        <% enclosures.forEach(enclosure => { %>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>
+                    <%= enclosure.name %> - <%= enclosure.animalType %> (Capacity: <%= enclosure.capacity %>)
+                </span>
+                <div>
+                    <button class="btn btn-sm btn-success mr-2 editBtn" data-id="<%= enclosure.id %>">Edit</button>
+                    <button class="btn btn-sm btn-danger deleteBtn" data-id="<%= enclosure.id %>">Delete</button>
+                </div>
+            </li>
+        <% }); %>
+    </ul>
+
+    <!-- Edit Enclosure Modal -->
+    <div id="editModal" class="modal fade" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit Enclosure</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editEnclosureForm">
+                        <div class="form-group">
+                            <label for="editEnclosureName">Enclosure Name</label>
+                            <input type="text" id="editEnclosureName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editEnclosureCapacity">Capacity</label>
+                            <input type="number" id="editEnclosureCapacity" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editAnimalType">Animal Type</label>
+                            <input type="text" id="editAnimalType" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        // Add new enclosure
+        $('#addEnclosureForm').on('submit', function (e) {
+            e.preventDefault();
+            const name = $('#newEnclosureName').val().trim();
+            const capacity = $('#newEnclosureCapacity').val().trim();
+            const animalType = $('#newAnimalType').val().trim();
+            if (name && capacity && animalType) {
+                $.ajax({
+                    url: '/enclosures',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ name: name, capacity: capacity, animalType: animalType }),
+                    success: function (newEnclosure) {
+                        location.reload(); // Reload to show the new enclosure
+                    },
+                    error: function (error) {
+                        console.error("Error adding enclosure:", error.responseText);
+                    }
+                });
+            }
+        });
+
+        // Delete an enclosure
+        $('.deleteBtn').on('click', function () {
+            const id = $(this).data('id');
+            $.ajax({
+                url: '/enclosures/' + id,
+                type: 'DELETE',
+                success: function () {
+                    location.reload(); // Reload to show updated list
+                }
+            });
+        });
+
+        // Show edit modal with the current enclosure details
+        let editId;
+        $('.editBtn').on('click', function () {
+            editId = $(this).data('id');
+            const currentEnclosure = $(this).closest('li').find('span').text().split(' - ');
+            const name = currentEnclosure[0];
+            const animalType = currentEnclosure[1].split(' (')[0];
+            const capacity = currentEnclosure[1].split(' ')[1].slice(11, -1);
+
+            $('#editEnclosureName').val(name);
+            $('#editEnclosureCapacity').val(capacity);
+            $('#editAnimalType').val(animalType);
+            $('#editModal').modal('show');
+        });
+
+        // Update enclosure on form submission
+        $('#editEnclosureForm').on('submit', function (e) {
+            e.preventDefault();
+            const name = $('#editEnclosureName').val().trim();
+            const capacity = $('#editEnclosureCapacity').val().trim();
+            const animalType = $('#editAnimalType').val().trim();
+            if (name && capacity && animalType) {
+                $.ajax({
+                    url: '/enclosures/' + editId,
+                    type: 'PUT',
+                    data: JSON.stringify({ name: name, capacity: capacity, animalType: animalType }),
+                    contentType: 'application/json',
+                    success: function () {
+                        location.reload(); // Reload to show the updated enclosure
+                    }
+                });
+            }
+        });
+    });
+</script>
